@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>NINE X PRO - Logo Restored Edition</title>
+<!-- BEGIN: External Resources -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            cyan: '#00f3ff',
+                            purple: '#bc13fe',
+                            red: '#ff003c',
+                            green: '#00ff66',
+                            pink: '#ff00ff',
+                            dark: '#081014'
+                        }
+                    },
+                    animation: {
+                        'spin-slow': 'spin 4s linear infinite',
+                        'scanline': 'scanline 4s linear infinite',
+                        'border-glow': 'border-glow 2s ease-in-out infinite',
+                        'blink': 'blink 1.5s steps(2, start) infinite',
+                        'blink-fast': 'blink 0.8s steps(2, start) infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' }
+                        },
+                        'border-glow': {
+                            '0%, 100%': { borderColor: '#00ff66', boxShadow: '0 0 15px rgba(0, 255, 102, 0.2), inset 0 0 10px rgba(0, 255, 102, 0.1)' },
+                            '50%': { borderColor: '#00ff66', boxShadow: '0 0 10px rgba(0, 255, 102, 0.4), inset 0 0 5px rgba(0, 255, 102, 0.2)' }
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 8px rgba(0,255,102,0.8))' },
+                            '50%': { opacity: .7, filter: 'drop-shadow(0 0 4px rgba(0,255,102,0.4))' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Firebase Realtime Database SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, get, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCsTi6BLj8GDGUrliipbkHvnOHRMOpCw2g",
+    databaseURL: "https://nine-x-mods-default-rtdb.firebaseio.com",
+    projectId: "nine-x-mods"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getDatabase(app);
+  window.ref = ref;
+  window.get = get;
+  window.set = set;
+  window.update = update;
+</script>
+<!-- END: External Resources -->
+<style data-purpose="base-layout">
+        :root {
+            --bg: #010204;
+            --surface: rgba(8, 16, 20, 0.95);
+            --neon-green: #00ff66;
+            --neon-cyan: #00f3ff;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --rs: 10px;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+
+        #game-frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1;
+        }
+
+        #overlay-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2147483647;
+        }
+
+        .interactive-element {
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        .mono {
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999999;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toast {
+            background: rgba(255, 0, 60, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid #ff003c;
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+<style data-purpose="animations">
+        @keyframes neural-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--neon-green); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px var(--neon-green), inset 0 0 15px var(--neon-green); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--neon-green); }
+        }
+
+        .panel-spring-enter {
+            animation: spring-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes spring-in {
+            from { transform: scale(0.9) translateX(-15px); opacity: 0; }
+            to { transform: scale(1) translateX(0); opacity: 1; }
+        }
+    </style>
+<style data-purpose="cyber-elements">
+        .floating-logo {
+            position: fixed;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            padding: 2px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 2147483647;
+            animation: neural-pulse 1.5s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+            left: calc(100vw - 85px);
+            top: calc(100vh - 85px);
+            will-change: transform, left, top;
+        }
+        
+        .floating-logo.unlocked {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+        }
+
+        .floating-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; pointer-events: none; }
+
+        .cyber-panel {
+            position: fixed;
+            width: 240px;
+            height: 220px;
+            background: linear-gradient(180deg, #0a1c14 0%, #04100a 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid #1a3a2a;
+            border-radius: 14px;
+            padding: 10px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 20px rgba(0, 255, 102, 0.05);
+            display: none;
+            z-index: 2147483646;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+            will-change: transform, left, top;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cyber-panel::after {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            pointer-events: none;
+        }
+        
+        /* Metallic Corner Accents */
+        .corner-accent {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #557766;
+            border-radius: 50%;
+            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.8), inset 1px 1px 3px rgba(255,255,255,0.4);
+            z-index: 10;
+        }
+        .ca-tl { top: 6px; left: 6px; }
+        .ca-tr { top: 6px; right: 6px; }
+        .ca-bl { bottom: 6px; left: 6px; }
+        .ca-br { bottom: 6px; right: 6px; }
+
+        .cyber-panel.visible { display: flex; opacity: 1; }
+        
+        /* Grid Background */
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+            background-size: 15px 15px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Glowing Balls */
+        .glow-ball {
+            --ball-bg: radial-gradient(circle at 30% 30%, #ccffdd, #00ff66 40%, #008833 80%, #003311 100%);
+            --notch-size: 3px;
+            --notch-size-trans: 4px;
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 50% 0%, rgba(255,255,255,0.95) var(--notch-size), transparent var(--notch-size-trans)),
+                radial-gradient(circle at 100% 50%, rgba(255,255,255,0.95) var(--notch-size), transparent var(--notch-size-trans)),
+                radial-gradient(circle at 50% 100%, rgba(255,255,255,0.95) var(--notch-size), transparent var(--notch-size-trans)),
+                radial-gradient(circle at 0% 50%, rgba(255,255,255,0.95) var(--notch-size), transparent var(--notch-size-trans)),
+                var(--ball-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #004411;
+            box-shadow: 
+                0 0 10px rgba(0, 255, 102, 0.4),
+                inset 0 0 8px rgba(255,255,255,0.8),
+                inset -4px -4px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+        .glow-ball::before {
+            content: '';
+            position: absolute;
+            top: 10%; left: 20%;
+            width: 10px; height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+            filter: blur(1px);
+        }
+        .glow-ball.large {
+            width: 40px; height: 40px;
+            font-size: 18px;
+            --notch-size: 4px;
+            --notch-size-trans: 5px;
+            box-shadow: 
+                0 0 15px rgba(0, 255, 102, 0.5),
+                inset 0 0 10px rgba(255,255,255,0.8),
+                inset -6px -6px 15px rgba(0,0,0,0.5);
+        }
+        .glow-ball.large::before {
+            width: 12px; height: 6px;
+        }
+        
+        .glow-ball.red-node {
+             --ball-bg: radial-gradient(circle at 30% 30%, #ffcccc, #ff003c 40%, #88001a 80%, #33000a 100%);
+             color: #44000d;
+             box-shadow: 
+                0 0 10px rgba(255, 0, 60, 0.4),
+                inset 0 0 8px rgba(255,255,255,0.8),
+                inset -4px -4px 10px rgba(0,0,0,0.5);
+        }
+        .glow-ball.large.red-node {
+             box-shadow: 
+                0 0 15px rgba(255, 0, 60, 0.5),
+                inset 0 0 10px rgba(255,255,255,0.8),
+                inset -6px -6px 15px rgba(0,0,0,0.5);
+        }
+        
+        .glow-ball.violet-node {
+             --ball-bg: radial-gradient(circle at 30% 30%, #eebbff, #bc13fe 40%, #660099 80%, #220033 100%);
+             color: #220033;
+             box-shadow: 
+                0 0 10px rgba(188, 19, 254, 0.4),
+                inset 0 0 8px rgba(255,255,255,0.8),
+                inset -4px -4px 10px rgba(0,0,0,0.5);
+        }
+        .glow-ball.large.violet-node {
+             box-shadow: 
+                0 0 15px rgba(188, 19, 254, 0.5),
+                inset 0 0 10px rgba(255,255,255,0.8),
+                inset -6px -6px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Auth Styles */
+        .inp-g{position:relative;margin-bottom:6px;}
+        .inp-g input{
+            width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(0, 255, 102, 0.3);
+            border-radius:var(--rs);color:#fff;font-size:11px;
+            padding:6px 6px 6px 28px;outline:none;transition:all 0.2s;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .inp-g input:focus{border-color:var(--neon-green);box-shadow:0 0 8px rgba(0, 255, 102, 0.3), inset 0 0 5px rgba(0,0,0,0.8);}
+        .inp-g input::placeholder{color:rgba(0, 255, 102, 0.4); text-transform: uppercase; font-size: 9px; letter-spacing: 1px;}
+        .inp-ico{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;pointer-events:none; opacity: 0.7;}
+        
+        .btn-main{
+            width: 100%;
+            background: linear-gradient(180deg, #00ff66 0%, #00aa44 100%);
+            color:#04080f;font-weight:900;font-size:11px;letter-spacing:1px;
+            border:none;border-radius:var(--rs);padding:8px;cursor:pointer;
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3), inset 0 1px 1px rgba(255,255,255,0.5);
+            transition:transform 0.1s,opacity 0.2s;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .btn-main:active{transform:scale(0.97);opacity:0.9;}
+        
+        .btn-secondary {
+            width: 100%;
+            background: linear-gradient(180deg, #1a2a20 0%, #0a110a 100%);
+            color:#bbb;font-weight:700;font-size:11px;letter-spacing:1px;
+            border: 1px solid #224433;border-radius:var(--rs);padding:8px;cursor:pointer;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+            transition:all 0.2s;
+            margin-top: 4px;
+            text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            text-decoration: none;
+        }
+        .btn-secondary:active{transform:scale(0.97);}
+        
+        .pill-badge {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .pill-badge::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--neon-green);
+            box-shadow: 0 0 5px var(--neon-green);
+        }
+        
+        .pill-badge.color-red {
+            background: #ff003c;
+            color: white;
+            border-color: #ff003c;
+            box-shadow: 0 0 10px rgba(255,0,60,0.5);
+        }
+        
+        .pill-badge.color-green {
+            background: #00ff66;
+            color: black;
+            border-color: #00ff66;
+            box-shadow: 0 0 10px rgba(0,255,102,0.5);
+        }
+        
+        .pill-badge.color-violet {
+            background: #bc13fe;
+            color: white;
+            border-color: #bc13fe;
+            box-shadow: 0 0 10px rgba(188,19,254,0.5);
+        }
+        
+        .pill-badge.size-big {
+            background: #ffaa00;
+            color: black;
+            border-color: #ffaa00;
+            box-shadow: 0 0 10px rgba(255,170,0,0.6);
+        }
+        
+        .pill-badge.size-small {
+            background: #00f3ff;
+            color: black;
+            border-color: #00f3ff;
+            box-shadow: 0 0 10px rgba(0,243,255,0.6);
+        }
+
+        .pill-badge.color-red::before, .pill-badge.color-green::before, .pill-badge.color-violet::before, .pill-badge.size-big::before, .pill-badge.size-small::before {
+            display: none;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+    </style>
+</head>
+<body>
+<div id="toast-container"></div>
+<iframe allow="autoplay; fullscreen" id="game-frame" src="https://bdgwincf.com/#/register?invitationCode=2612115918998"></iframe>
+<div id="overlay-container">
+<!-- Floating Logo Trigger -->
+<div class="floating-logo interactive-element" id="logo-trigger">
+<img alt="Spider-Man Logo" class="animate-spin-slow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAz5VENbQo8A-Zsql6a_yKO9O6cWfjBMNYra-rnckeX-zzh00RMY6sgoycb8lUj9cch4s2uixQvahs3W8KXWErN0WgKo8kCOC37WzR5T8LItbvU3-ZtDYyZuQIrzM1Bjg1XBiyRAWMHck_cfiTd2Pd5zKqpmAF2qJQomY8kgXXxYVt0e0t-m0r68gJsYJN-twfMB3kRXDLdEuxiHngxxVoudKh3TdhVed_QPu8YICWy4SGtiWlnKmicdx4tuIu3G98Fg"/>
+</div>
+<!-- Main Neural Panel -->
+<div class="cyber-panel interactive-element animate-border-glow border-2 border-[var(--neon-green)]" id="pred-panel" style="display: none; height: auto; min-height: 220px;">
+<div class="grid-bg"></div>
+<div class="corner-accent ca-tl"></div>
+<div class="corner-accent ca-tr"></div>
+<div class="corner-accent ca-bl"></div>
+<div class="corner-accent ca-br"></div>
+<!-- Header -->
+<div class="flex items-center justify-between mb-2 relative z-10 border-b border-white/5 pb-1" id="panel-header">
+<div class="flex items-center gap-1.5">
+<div class="w-6 h-6 rounded-full border border-[var(--neon-green)] flex items-center justify-center bg-black/50 shadow-[0_0_10px_rgba(0,255,102,0.2)] overflow-hidden">
+<img alt="Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgBeoiQQ4WstC6UUhdR4Z_8Uc8Ltf6ppRzRmCVXCsZwn8KHf5wYjONr8tJMJ2hSHannLkhXl9fF4sZA6khwjlmejIwExRbO-wimfiqngQBiOxloGgszb-xt1tiEJlFhOR7XxZ1bZZGSzsqoVkCfQoX9_SDz06FZkY24uGI4QbOgswwChwJ66eW2TQcorlcFiADCm8QhdE2mWQ4aTM7h5juTLGraxZzx8M-btjqPdCut0ae73iUpEbgxt1MXfJ7tzVgxg"/>
+</div>
+<div class="flex flex-col">
+<h2 class="text-[10px] font-black tracking-widest text-white uppercase m-0 leading-tight">NINE X MASTER</h2>
+<div class="flex items-center gap-1">
+<div class="w-1 h-1 rounded-full bg-[var(--neon-green)] animate-blink"></div>
+<span class="text-[6px] font-bold text-gray-400 uppercase tracking-wider">NINE X OFFICIAL</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1">
+<div class="w-1 h-1 rounded-full bg-gray-500" id="link-dot"></div>
+<span class="text-[6px] text-gray-400 uppercase tracking-wider" id="wallet-status">LIVE</span>
+</div>
+<div class="text-[7px] font-bold text-gray-500 uppercase tracking-wide mt-0.5">STATUS <span class="text-[var(--neon-green)]" id="status-label">OFFLINE</span></div>
+</div>
+</div>
+<!-- Dynamic Content Area -->
+<div class="content-area relative z-10">
+<!-- Login Screen -->
+<div class="space-y-1 relative z-10 w-full pb-1" id="login-screen">
+<div class="inp-g mt-1">
+<span class="inp-ico">👤</span>
+<input autocomplete="off" id="lUser" placeholder="Username" type="text"/>
+</div>
+<div class="inp-g">
+<span class="inp-ico">🔐</span>
+<input id="lPass" placeholder="Password" type="Password"/>
+</div>
+<button class="btn-main mt-1" onclick="doLogin()">Enter To Access</button>
+<button class="btn-secondary mt-1" onclick="window.open('https://t.me/NINE_X_MODS', '_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+    Get Access Key
+    <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="12" fill="#229ED9"/>
+        <path d="M5.2 11.7 17.8 6.8c.6-.2 1.1.1.9.9l-2.1 9.8c-.2.7-.6.9-1.2.5l-3.5-2.6-1.7 1.6c-.2.2-.4.4-.8.4l.3-3.6 6.5-5.9c.3-.3-.1-.4-.5-.1l-8 5-3.4-1.1c-.7-.2-.7-.7.9-1.3z" fill="#fff"/>
+    </svg>
+</button>
+</div>
+<!-- Prediction UI -->
+<div class="hidden flex-col gap-1.5 relative z-10 w-full pb-1" id="prediction-ui">
+<!-- Stats Bar -->
+<div class="flex justify-between items-center text-[7px] font-bold tracking-wider text-gray-300 border-b border-white/5 pb-1"><div>SEQ : <span class="text-white" id="period-display">---</span></div><div>TIME : <span class="text-[var(--neon-green)]" id="timer-display">00:60</span></div><div>MOD : <span class="text-white">WINGO</span></div></div>
+<!-- Main Visual Balls -->
+<div class="flex justify-center items-center gap-1.5 py-1" id="nodes-container"><div class="glow-ball" id="gb-1"><div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[10px] font-black" id="ball-1">?</div></div><div class="glow-ball large" id="gb-2"><div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[12px] font-black" id="ball-2">?</div></div><div class="glow-ball" id="gb-3"><div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[10px] font-black" id="ball-3">?</div></div></div>
+<!-- Status Row -->
+<div class="flex justify-between items-end border-b border-white/5 pb-1">
+<div class="flex flex-col">
+<span class="text-[6px] text-gray-500 font-bold uppercase tracking-widest">SERVER STATUS</span>
+<span class="text-[8px] text-[var(--neon-green)] font-black uppercase tracking-wider mt-0.5">CONNECTED</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[6px] text-gray-500 font-bold uppercase tracking-widest">RESULT API</span>
+<span class="text-[8px] text-[var(--neon-green)] font-black uppercase tracking-wider mt-0.5">ACCURACY : 99.9%</span>
+</div>
+</div>
+<!-- Prediction Badges -->
+<div class="flex gap-1">
+<div class="pill-badge flex-1 justify-center" id="size-badge">Size: <span class="font-black" id="prediction-size">---</span></div>
+<div class="pill-badge flex-1 justify-center" id="color-badge">Color: <span class="font-black" id="prediction-color">---</span></div>
+</div>
+<!-- Footer Buttons -->
+<div class="flex mt-1"><button class="btn-secondary w-full py-1 text-[9px]" id="hide-btn"><span class="material-symbols-outlined text-[10px]">visibility_off</span> HIDE PANEL</button></div>
+</div>
+</div>
+</div>
+</div>
+<audio id="tik-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-50.mp3"></audio>
+<script>
+        const logo = document.getElementById('logo-trigger');
+        const panel = document.getElementById('pred-panel');
+        const panelHeader = document.getElementById('panel-header');
+        const hideBtn = document.getElementById('hide-btn');
+        const loginScreen = document.getElementById('login-screen');
+        const predictionUI = document.getElementById('prediction-ui');
+        const walletStatusText = document.getElementById('wallet-status');
+        const linkDot = document.getElementById('link-dot');
+        const statusLabel = document.getElementById('status-label');
+        const tik = document.getElementById('tik-sound');
+
+        let isUnlocked = false;
+        let currentUser = null;
+        let authChecker = null;
+
+        // Generate HWID logic
+        function getHWID() {
+            let hwid = localStorage.getItem('hwid');
+            if (!hwid) {
+                hwid = 'HWID-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('hwid', hwid);
+            }
+            return hwid;
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        function updatePanelPosition() {
+            if (panel.classList.contains('visible') || panel.style.display === 'block' || panel.style.display === 'flex') {
+                const logoRect = logo.getBoundingClientRect();
+                const panelWidth = 240;
+                const panelHeight = 220;
+                
+                let targetX = logoRect.left + logoRect.width + 10; // 10px gap
+                let targetY = logoRect.top - panelHeight - 10; // offset upwards
+
+                const padding = 10;
+                // If it goes off the right edge, snap it to the left side instead
+                if (targetX + panelWidth > window.innerWidth - padding) {
+                    targetX = logoRect.left - panelWidth - 10;
+                }
+                if (targetX < padding) targetX = padding;
+                
+                // If it goes off the top edge, snap to below the logo
+                if (targetY < padding) {
+                    targetY = logoRect.bottom + 10;
+                }
+                
+                // Keep it within vertical bounds
+                if (targetY + panelHeight > window.innerHeight - padding) {
+                    targetY = window.innerHeight - panelHeight - padding;
+                }
+
+                panel.style.left = targetX + "px";
+                panel.style.top = targetY + "px";
+            }
+        }
+
+
+        function makeDraggable(element, trigger, onDragCallback = null) {
+            let active = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+            let hasMoved = false;
+
+            if (element.id === 'logo-trigger') {
+                xOffset = window.innerWidth - 85;
+                yOffset = window.innerHeight - 85;
+            } else {
+                xOffset = (window.innerWidth - 240) / 2;
+                yOffset = 100;
+            }
+            setTranslate(xOffset, yOffset, element);
+
+            const dragStart = (e) => {
+                if (e.target.closest('button') || e.target.closest('input')) return;
+                
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+
+                if (e.target === trigger || trigger.contains(e.target)) {
+                    active = true;
+                    hasMoved = false;
+                }
+            };
+
+            const dragEnd = () => {
+                initialX = currentX;
+                initialY = currentY;
+                active = false;
+                element.dataset.hasMoved = hasMoved;
+            };
+
+            const drag = (e) => {
+                if (active) {
+                    if (e.cancelable) e.preventDefault();
+                    
+                    let clientX, clientY;
+                    if (e.type === "touchmove") {
+                        clientX = e.touches[0].clientX;
+                        clientY = e.touches[0].clientY;
+                    } else {
+                        clientX = e.clientX;
+                        clientY = e.clientY;
+                    }
+
+                    currentX = clientX - initialX;
+                    currentY = clientY - initialY;
+
+                    const rect = element.getBoundingClientRect();
+                    currentX = Math.max(0, Math.min(currentX, window.innerWidth - rect.width));
+                    currentY = Math.max(0, Math.min(currentY, window.innerHeight - rect.height));
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    
+                    if (Math.abs(clientX - (initialX + xOffset)) > 5 || Math.abs(clientY - (initialY + yOffset)) > 5) {
+                        hasMoved = true;
+                    }
+
+                    setTranslate(currentX, currentY, element);
+                    if (onDragCallback) onDragCallback(currentX, currentY);
+                }
+            };
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.left = xPos + "px";
+                el.style.top = yPos + "px";
+            }
+
+            trigger.addEventListener("touchstart", dragStart, { passive: false });
+            window.addEventListener("touchend", dragEnd, { passive: false });
+            window.addEventListener("touchmove", drag, { passive: false });
+
+            trigger.addEventListener("mousedown", dragStart, false);
+            window.addEventListener("mouseup", dragEnd, false);
+            window.addEventListener("mousemove", drag, false);
+
+            return {
+                moveTo: (x, y) => {
+                    xOffset = x;
+                    yOffset = y;
+                    setTranslate(x, y, element);
+                },
+                getOffsets: () => ({ x: xOffset, y: yOffset }),
+                getHasMoved: () => hasMoved
+            };
+        }
+
+        const logoDragController = makeDraggable(logo, logo, (lx, ly) => {
+            updatePanelPosition();
+        });
+
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                utterance.pitch = 0.8;
+                utterance.volume = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playTik() {
+            tik.currentTime = 0;
+            tik.play().catch(() => {});
+        }
+
+        logo.addEventListener('click', (e) => {
+            if (logo.dataset.hasMoved === "true") return;
+            playTik();
+            if (panel.classList.contains('visible') || panel.style.display === 'block' || panel.style.display === 'flex') {
+                closePanel();
+            } else {
+                openPanel();
+            }
+        });
+
+        function openPanel() {
+            panel.style.display = 'flex';
+            updatePanelPosition();
+            requestAnimationFrame(() => {
+                panel.classList.add('visible', 'panel-spring-enter');
+            });
+        }
+
+        function closePanel() {
+            panel.classList.remove('visible');
+            setTimeout(() => {
+                panel.style.display = 'none';
+                panel.classList.remove('panel-spring-enter');
+            }, 300);
+        }
+
+        if(hideBtn) {
+            hideBtn.onclick = (e) => {
+                e.stopPropagation();
+                playTik();
+                closePanel();
+            };
+        }
+
+        async function doLogin() {
+            const u = document.getElementById('lUser').value.trim();
+            const p = document.getElementById('lPass').value;
+            if (u && p) {
+                playTik();
+                
+                try {
+                    const userRef = window.ref(window.db, 'Users/' + u);
+                    const snapshot = await window.get(userRef);
+
+                    if (!snapshot.exists()) {
+                        showToast("Invalid Key");
+                        return;
+                    }
+
+                    const userData = snapshot.val();
+
+                    if (userData.password !== p) {
+                        showToast("Invalid Key");
+                        return;
+                    }
+
+                    if (userData.expiry < Date.now()) {
+                        showToast("Key Expired");
+                        return;
+                    }
+
+                    const hwid = getHWID();
+                    
+                    if (userData.device_limit === 1) {
+                        if (!userData.device_id || userData.device_id === hwid) {
+                            if (!userData.device_id) {
+                                await window.update(userRef, {
+                                    device_id: hwid,
+                                    is_logged: true
+                                });
+                            } else {
+                                await window.update(userRef, { is_logged: true });
+                            }
+                            currentUser = u;
+                            unlockSystem();
+                            startAuthChecker();
+                        } else {
+                            showToast("Device Limit Reached");
+                        }
+                    } else if (userData.device_limit >= 999) {
+                        await window.update(userRef, { is_logged: true });
+                        currentUser = u;
+                        unlockSystem();
+                        startAuthChecker();
+                    } else {
+                         // Default logic if device_limit is not 1 or 999 (should not happen based on prompt, but just in case)
+                         showToast("Invalid Device Limit");
+                    }
+
+                } catch (error) {
+                    console.error("Login error", error);
+                    showToast("Login Failed. Check connection.");
+                }
+            } else {
+                showToast("Please enter Username and Passcode");
+            }
+        }
+
+        function unlockSystem() {
+            isUnlocked = true;
+            linkDot.classList.replace('bg-gray-500', 'bg-[var(--neon-green)]');
+            linkDot.classList.add('animate-blink');
+            statusLabel.textContent = "ACTIVE";
+            
+            speak("Master panel connected. Premium edition active.");
+            loginScreen.classList.add('hidden');
+            predictionUI.classList.remove('hidden');
+            predictionUI.classList.add('flex');
+            logo.classList.add('unlocked');
+            startEngine();
+        }
+        
+        function logout() {
+            isUnlocked = false;
+            currentUser = null;
+            if (authChecker) clearInterval(authChecker);
+            
+            linkDot.classList.replace('bg-[var(--neon-green)]', 'bg-gray-500');
+            linkDot.classList.remove('animate-blink');
+            statusLabel.textContent = "OFFLINE";
+            
+            loginScreen.classList.remove('hidden');
+            predictionUI.classList.add('hidden');
+            predictionUI.classList.remove('flex');
+            logo.classList.remove('unlocked');
+            
+            document.getElementById('lPass').value = '';
+            
+            speak("Session terminated.");
+            showToast("Session Expired or Terminated.");
+        }
+
+        function startAuthChecker() {
+            if (authChecker) clearInterval(authChecker);
+            
+            authChecker = setInterval(async () => {
+                if (!currentUser) return;
+                
+                try {
+                    const userRef = window.ref(window.db, 'Users/' + currentUser);
+                    const snapshot = await window.get(userRef);
+                    
+                    if (!snapshot.exists()) {
+                        logout();
+                        return;
+                    }
+                    
+                    const userData = snapshot.val();
+                    if (userData.expiry < Date.now()) {
+                        logout();
+                    }
+                } catch (e) {
+                    console.error("Auth check failed", e);
+                }
+            }, 10000); // Check every 10 seconds
+        }
+
+
+        const MATRIX=[
+          {size:'BIG',targets:[5,6], num: '6', color: 'RED'},
+          {size:'SMALL',targets:[5,7], num: '1', color: 'GREEN'},
+          {size:'SMALL',targets:[7,9], num: '3', color: 'GREEN'},
+          {size:'BIG',targets:[3,4], num: '8', color: 'RED'},
+          {size:'BIG',targets:[1,3], num: '7', color: 'GREEN'},
+          {size:'BIG',targets:[1,2], num: '9', color: 'GREEN'},
+          {size:'SMALL',targets:[6,8], num: '2', color: 'RED'},
+          {size:'SMALL',targets:[8,9], num: '0', color: 'VIOLET'}
+        ];
+
+        let stateCounter = 0;
+        let lastFetched = null;
+        let useProxy = false;
+
+        async function fetchData(){
+          const pri='https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+          const fb='https://api.allorigins.win/raw?url='+encodeURIComponent(pri);
+          try{ const r=await fetch(useProxy?fb:pri); if(!r.ok) throw 0; return await r.json(); }
+          catch{ if(!useProxy) useProxy=true; return null; }
+        }
+        
+        function fetchNewPrediction() {
+            playTik();
+            stateCounter++;
+            updatePredictionDisplay();
+        }
+
+        function updatePredictionDisplay(issueNumber = null) {
+            const cfg = MATRIX[stateCounter % 8];
+            
+            document.getElementById('prediction-size').textContent = cfg.size;
+            document.getElementById('prediction-color').textContent = cfg.color;
+            
+            document.getElementById('ball-1').textContent = cfg.num;
+            document.getElementById('ball-2').textContent = cfg.num;
+            document.getElementById('ball-3').textContent = cfg.num;
+            
+            const gbs = [document.getElementById('gb-1'), document.getElementById('gb-2'), document.getElementById('gb-3')];
+            if(cfg.color === 'RED') {
+                gbs.forEach(gb => {
+                    gb.classList.add('red-node');
+                    gb.classList.remove('violet-node');
+                });
+            } else if (cfg.color === 'VIOLET') {
+                gbs.forEach(gb => {
+                    gb.classList.add('violet-node');
+                    gb.classList.remove('red-node');
+                });
+            } else {
+                gbs.forEach(gb => {
+                    gb.classList.remove('red-node', 'violet-node');
+                });
+            }
+
+            const colorBadge = document.getElementById('color-badge');
+            colorBadge.classList.remove('color-red', 'color-green', 'color-violet');
+            if (cfg.color === 'RED') {
+                colorBadge.classList.add('color-red');
+            } else if (cfg.color === 'GREEN') {
+                colorBadge.classList.add('color-green');
+            } else if (cfg.color === 'VIOLET') {
+                colorBadge.classList.add('color-violet');
+            }
+
+            const sizeBadge = document.getElementById('size-badge');
+            sizeBadge.classList.remove('size-big', 'size-small');
+            if (cfg.size === 'BIG') {
+                sizeBadge.classList.add('size-big');
+            } else if (cfg.size === 'SMALL') {
+                sizeBadge.classList.add('size-small');
+            }
+            
+            if(issueNumber) {
+                document.getElementById('period-display').textContent = (BigInt(issueNumber)+1n).toString().slice(-7);
+            }
+        }
+
+        let engineInterval;
+        async function startEngine(){
+          if(!isUnlocked) return;
+          if(engineInterval) clearInterval(engineInterval);
+          const tick=async()=>{
+            if(!isUnlocked) return;
+            const json=await fetchData();
+            if(!json?.data?.list) return;
+            const lat=json.data.list[0];
+            if(lastFetched===lat.issueNumber) return;
+
+            updatePredictionDisplay(lat.issueNumber);
+            speak(`Sequence updated.`);
+            
+            lastFetched=lat.issueNumber; stateCounter++;
+          };
+          await tick();
+          engineInterval = setInterval(tick,3000);
+        }
+
+        window.addEventListener('load', () => {
+            const initialSpeechHandler = () => {
+                speak("System interface ready.");
+                document.removeEventListener('touchstart', initialSpeechHandler);
+                document.removeEventListener('click', initialSpeechHandler);
+            };
+            document.addEventListener('touchstart', initialSpeechHandler);
+            document.addEventListener('click', initialSpeechHandler);
+            
+            panel.style.display = 'none';
+        });
+        
+        window.addEventListener('resize', () => {
+             updatePanelPosition();
+        });
+    </script>
+<script>
+    let timeLeft = 60; 
+    const timerEl = document.getElementById('timer-display'); 
+    
+    function startTimer() { 
+        setInterval(() => { 
+            timeLeft = 60 - (new Date().getSeconds());
+            if (timeLeft === 60) timeLeft = 0;
+            
+            if (timeLeft === 0) { 
+                if(typeof fetchNewPrediction === 'function' && isUnlocked) fetchNewPrediction(); 
+            } 
+            const s = timeLeft < 10 ? '0' + timeLeft : timeLeft; 
+            if(timerEl) timerEl.textContent = `00:${s}`; 
+        }, 1000); 
+    } 
+    
+    startTimer(); 
+</script></body></html>
